@@ -10,7 +10,7 @@
 Install with NPM
 
 ```shell
-npm install -S nodester-tools
+npm install -D nodester-tools
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ module.exports = {
 }
 ```
 
-`controllers`, `facades`, `models`, `filters`,`providers` are absolute paths to the corresponding directories in your project.
+`controllers`, `facades`, `models`, `filters`, `providers` are absolute paths to the corresponding directories in your project.
 
 2) Add `nodester-tools` to your `npm` scripts:
 ```json
@@ -53,27 +53,27 @@ module.exports = {
 - `controller`:
 ```sh
 npm run tools:generate controller <Controller Name/>
-````
+```
 
 - `facade`:
 ```sh
 npm run tools:generate facade <Facade Name/>
-````
+```
 
 - `model`:
 ```sh
 npm run tools:generate model <Model Name/>
-````
+```
 
 - `filter`:
 ```sh
 npm run tools:generate filter <Filter Name/>
-````
+```
 
 - `provider`:
 ```sh
 npm run tools:generate provider <Provider Name/>
-````
+```
 
 ## License
 [MIT](LICENSE)
