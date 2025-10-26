@@ -1,4 +1,4 @@
-#!/usr/bin/env babel-node
+#!/usr/bin/env node
 
 const { version, description } = require('./../package.json'); // Adjust the path accordingly
 
