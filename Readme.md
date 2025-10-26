@@ -50,30 +50,29 @@ module.exports = {
 
 3) Call the neccessary generation command:
 
-- `controller`:
-```sh
-npm run tools:generate controller <Controller Name/>
-```
+`model`:
 
-- `facade`:
-```sh
-npm run tools:generate facade <Facade Name/>
-```
+Will create:
+- Model (if does not exist)
+- Facade (if does not exist)
+- Controller (if does not exist)
 
-- `model`:
 ```sh
 npm run tools:generate model <Model Name/>
 ```
 
-- `filter`:
+
+`filter`:
 ```sh
 npm run tools:generate filter <Filter Name/>
 ```
 
-- `provider`:
+
+`provider`:
 ```sh
 npm run tools:generate provider <Provider Name/>
 ```
+
 
 ## License
 [MIT](LICENSE)

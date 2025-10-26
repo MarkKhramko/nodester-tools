@@ -20,14 +20,15 @@ module.exports = function generateNewProvider(nodesterConfigs, providerName) {
 		} = exposeGeneratorTools(nodesterConfigs);
 
 		let providerCreated = false;
-		let facadeCreated = false;
 		
 		const providerNameLowercased = lowercaseFirstLetter(providerName);
 
 
 		// Write to /providers directory, if doesn't exist:
 		const providerPath = Path.join(dirs.providers, `${ providerName }.provider.js`);
-		if (fs.existsSync(providerPath) === false) {
+		const alreadyExists = fs.existsSync(providerPath);
+
+		if (alreadyExists === false) {
 			// Create it:
 			fs.writeFileSync(
 				providerPath,
@@ -37,12 +38,12 @@ module.exports = function generateNewProvider(nodesterConfigs, providerName) {
 			providerCreated = true;
 		}
 
-		console.info(`Provider ${ providerName }:\n`,
-			`
-• Provider created: ${ providerCreated };
-• Facade created: ${ facadeCreated };
-			`
-		);
+		console.info(`Provider "${ providerName }":\n`)
+		console.info(`• Provider created:`, providerCreated);
+
+		if (providerCreated === false && alreadyExists) {
+			console.info(`└ Reason: provider already exists.`);
+		}
 		
 		// End.
 		process.exit(0);

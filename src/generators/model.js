@@ -3,10 +3,13 @@
 // Arguments validator.
 const { ensure } = require('nodester/validators/arguments');
 
+// Utils:
 const {
 	exposeGeneratorTools,
 	lowercaseFirstLetter
 } = require('./common');
+
+const inflection = require('inflection');
 
 
 module.exports = function generateNewModel(nodesterConfigs, modelName) {
@@ -28,7 +31,9 @@ module.exports = function generateNewModel(nodesterConfigs, modelName) {
 
 		// Write to /models directory, if doesn't exist:
 		const modelPath = Path.join(dirs.models, `${ modelName }.js`);
-		if (fs.existsSync(modelPath) === false) {
+		const modelAlreadyExists = fs.existsSync(modelPath);
+
+		if (modelAlreadyExists === false) {
 			// Create it:
 			fs.writeFileSync(
 				modelPath,
@@ -38,16 +43,17 @@ module.exports = function generateNewModel(nodesterConfigs, modelName) {
 			modelCreated = true;
 		}
 
-		// Get newly created model.
-		const Model = require(modelPath);
+
 		// Get plural name:
-		const modelNamePlural = Model.options.name.plural;
+		const modelNamePlural = inflection.pluralize(modelName);
 		const modelNamePluralLowercased = lowercaseFirstLetter(modelNamePlural);
 
 
 		// Write to /controllers directory, if doesn't exist:
 		const controllerPath = Path.join(dirs.controllers, `${ modelNamePlural }.controller.js`);
-		if (fs.existsSync(controllerPath) === false) {
+		const controllerAlreadyExists = fs.existsSync(controllerPath);
+
+		if (controllerAlreadyExists === false) {
 			// Create it:
 			const controllerName = `${ modelNamePlural }Controller`;
 			fs.writeFileSync(
@@ -61,7 +67,9 @@ module.exports = function generateNewModel(nodesterConfigs, modelName) {
 
 		// Write to /facades directory, if doesn't exist:
 		const facadePath = Path.join(dirs.facades, `${ modelNamePluralLowercased }.js`);
-		if (fs.existsSync(facadePath) === false) {
+		const facadeAlreadyExists = fs.existsSync(facadePath);
+		
+		if (facadeAlreadyExists === false) {
 			// Create it:
 			fs.writeFileSync(
 				facadePath,
@@ -71,13 +79,21 @@ module.exports = function generateNewModel(nodesterConfigs, modelName) {
 			facadeCreated = true;
 		}
 
-		console.info(`Model ${ modelName }:\n`,
-			`
-• Model created: ${ modelCreated };
-• Controller created: ${ controllerCreated };
-• Facade created: ${ facadeCreated };
-			`
-		);
+		console.info(`Model ${ modelName }:\n`)
+		console.info(`• Model created:`, modelCreated);
+		if (modelCreated === false && modelAlreadyExists) {
+			console.info(`└ Reason: model already exists.\n`);
+		}
+
+		console.info(`• Controller created:`, controllerCreated);
+		if (controllerCreated === false && controllerAlreadyExists) {
+			console.info(`└ Reason: controller already exists.\n`);
+		}
+
+		console.info(`• Facade created:`, facadeCreated);
+		if (facadeCreated === false && facadeAlreadyExists) {
+			console.info(`└ Reason: facade already exists.\n`);
+		}
 		
 		// End.
 		process.exit(0);
