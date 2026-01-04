@@ -1,6 +1,6 @@
 {
   "name": "nodester-tools",
-  "version": "0.0.3",
+  "version": "0.0.31",
   "description": "Toolkit to help you with the nodester application development.",
   "bin": {
     "nodester-tools": "./src/index.js"

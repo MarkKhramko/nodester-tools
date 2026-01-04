@@ -147,8 +147,17 @@ module.exports = function ${ modelNamePlural }Get(req, res, next) {
 				'order',
 				'order_by',
 			],
+
+			// bounds: {
+			// 	attributes: {},
+			// 	clauses: {}
+			// },
+
 			statics: {
+				attributes: {},
+				clauses: {}
 			},
+
 			includes: {
 			}
 		});
