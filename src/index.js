@@ -1,6 +1,41 @@
 #!/usr/bin/env node
 
-const { version, description } = require('./../package.json'); // Adjust the path accordingly
+const { version, description } = require('./../package.json');
+
+// Filesystem utils:
+const fs = require('fs');
+const path = require('path');
+
+
+// Dynamic Alias Loading Logic:
+const aliasConfigPath = path.join(process.cwd(), 'alias.config.js');
+
+if (fs.existsSync(aliasConfigPath)) {
+	// Built-in Node tool for custom loads.
+	const { createRequire } = require('module');
+
+	try {
+		/**
+		 * We create a specialized 'require' function that starts looking 
+		 * for packages from the root project directory.
+		 */
+		const projectRequire = createRequire(path.join(process.cwd(), 'package.json'));
+		
+		// Load module-alias and the config using the project-scoped require
+		projectRequire('module-alias');
+		projectRequire(aliasConfigPath);
+
+	} catch (error) {
+		// We fail silently or show a small hint if module-alias isn't installed
+		if (error.code === 'MODULE_NOT_FOUND') {
+			console.warn(`⚠️ alias.config.js found, but "module-alias" package is not installed. Try running "npm i" from your project directory.`);
+		} else {
+			console.error('🔺 Error loading alias.config.js:', error);
+		}
+	}
+}
+// Dynamic Alias Loading Logic\
+
 
 // Lib:
 const generate = {
