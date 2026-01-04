@@ -42,7 +42,7 @@ module.exports = {
         "tools:generate": "nodester-tools -g",
     },
     "devDependencies": {
-        "nodester-tools": "^0.0.1",
+        "nodester-tools": "^0.0.3",
     },
     ...
 }
@@ -63,8 +63,13 @@ npm run tools:generate model <Model Name/>
 
 
 `filter`:
+
+When you are generating a filter, provide a `Role` argument
+- It will ensure a proper structure of your `/filters` directory
+- For example, if a role is `admin`, all the filters will be placed in `/filters/<Model Name>/admin`
+
 ```sh
-npm run tools:generate filter <Filter Name/>
+npm run tools:generate filter <Model Name/> <Role/>
 ```
 
 

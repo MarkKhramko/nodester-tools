@@ -8,11 +8,10 @@ const {
 	lowercaseFirstLetter
 } = require('./common');
 
-
-module.exports = function generateNewFilter(nodesterConfigs, modelName, userRole) {
+module.exports = function generateNewFilter(nodesterConfigs, modelName, role) {
 	try {
 		ensure(modelName, 'string,required', 'modelName');
-		ensure(userRole, 'string,required', 'userRole');
+		ensure(role, 'string,required', 'role');
 
 		const {
 			dirs,
@@ -22,81 +21,83 @@ module.exports = function generateNewFilter(nodesterConfigs, modelName, userRole
 
 		const Model = require( Path.join(dirs.models, modelName) );
 		if (!Model) {
-			const err = new Error(`No model named ${ Model }`);
+			const err = new Error(`No model named ${ modelName }`);
 			throw err;
 		}
 
 		// Get plural name:
 		const modelNamePlural = Model.options.name.plural;
 
+		// Trackers
+		let directoryCreated = false, directoryExists = false;
+		let indexCreated = false, indexExists = false;
+		let GETCreated = false, GETExists = false;
+		let POSTCreated = false, POSTExists = false;
+		let PUTCreated = false, PUTExists = false;
 
-		let directoryCreated = false;
-		let GETCreated = false;
-		let POSTCreated = false;
-		let PUTCreated = false;
-
-
-		// Write to /filters directory, if doesn't exist:
-		const filterDirPath = Path.join(dirs.filters, modelNamePlural, userRole);
-		if (fs.existsSync(filterDirPath) === false) {
+		// 1. Directory logic
+		const filterDirPath = Path.join(dirs.filters, modelNamePlural, role);
+		directoryExists = fs.existsSync(filterDirPath);
+		if (!directoryExists) {
 			fs.mkdirSync(filterDirPath, { recursive: true });
-
 			directoryCreated = true;
 		}
 
+		// 2. Index logic
 		const filterIndexPath = Path.join(filterDirPath, 'index.js');
-		if (fs.existsSync(filterIndexPath) === false) {
-			// Create it:
-			fs.writeFileSync(
-				filterIndexPath,
-				_filterIndexContent()
-			);
+		indexExists = fs.existsSync(filterIndexPath);
+		if (!indexExists) {
+			fs.writeFileSync(filterIndexPath, _filterIndexContent());
+			indexCreated = true;
 		}
 
+		// 3. GET logic
 		const filterGetPath = Path.join(filterDirPath, 'get.js');
-		if (fs.existsSync(filterGetPath) === false) {
-			// Create it:
-			fs.writeFileSync(
-				filterGetPath,
-				_filterContentGET(modelName, modelNamePlural)
-			);
-
+		GETExists = fs.existsSync(filterGetPath);
+		if (!GETExists) {
+			fs.writeFileSync(filterGetPath, _filterContentGET(modelName, modelNamePlural));
 			GETCreated = true;
 		}
 
+		// 4. POST logic
 		const filterPostPath = Path.join(filterDirPath, 'post.js');
-		if (fs.existsSync(filterPostPath) === false) {
-			// Create it:
-			fs.writeFileSync(
-				filterPostPath,
-				_filterContentPOSTPUT(Model, 'Post')
-			);
-
+		POSTExists = fs.existsSync(filterPostPath);
+		if (!POSTExists) {
+			fs.writeFileSync(filterPostPath, _filterContentPOSTPUT(Model, 'Post'));
 			POSTCreated = true;
 		}
 
+		// 5. PUT logic
 		const filterPutPath = Path.join(filterDirPath, 'put.js');
-		if (fs.existsSync(filterPutPath) === false) {
-			// Create it:
-			fs.writeFileSync(
-				filterPutPath,
-				_filterContentPOSTPUT(Model, 'Put')
-			);
-
+		PUTExists = fs.existsSync(filterPutPath);
+		if (!PUTExists) {
+			fs.writeFileSync(filterPutPath, _filterContentPOSTPUT(Model, 'Put'));
 			PUTCreated = true;
 		}
 
+		// --- Detailed Console Output ---
+		console.info(`\nFilter status for "${ modelName }" (Role: ${ role }):`);
 
-		console.info(`Filter "${ modelName }" for the role "${ userRole }":\n`,
-			`
-• Directory created: ${ directoryCreated };
-• GET created: ${ GETCreated };
-• POST created: ${ POSTCreated };
-• PUT created: ${ PUTCreated };
-			`
-		);
+		// Directory Report
+		console.info(`• Directory created: ${ directoryCreated }`);
+		if (!directoryCreated && directoryExists) console.info(`  └ Reason: directory already exists.`);
+
+		// Files Report
+		const files = [
+			{ name: 'index.js', created: indexCreated, exists: indexExists },
+			{ name: 'get.js',   created: GETCreated,   exists: GETExists },
+			{ name: 'post.js',  created: POSTCreated,  exists: POSTExists },
+			{ name: 'put.js',   created: PUTCreated,   exists: PUTExists }
+		];
+
+		files.forEach(file => {
+			console.info(`• ${ file.name } created: ${ file.created }`);
+			if (!file.created && file.exists) {
+				console.info(`  └ Reason: file already exists.`);
+			}
+		});
 		
-		// End.
+		console.log(''); // Trailing newline for cleanliness
 		process.exit(0);
 	}
 	catch(error) {
